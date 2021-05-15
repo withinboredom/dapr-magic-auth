@@ -1,0 +1,15 @@
+{
+    "name": "withinboredom/dapr-magic-auth",
+    "description": "Dapr microservice to send magic links via SMS",
+    "type": "library",
+    "license": "GPL3",
+    "authors": [
+        {
+            "name": "Rob Landers",
+            "email": "landers.robert@gmail.com"
+        }
+    ],
+    "require": {
+        "dapr/php-sdk": "^1.1"
+    }
+}
