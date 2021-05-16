@@ -49,7 +49,7 @@ Callbacks receive the following data:
 ```json
 {
   "userId": "The user id",
-  "phoneNumber": "The device id",
+  "deviceId": "The device id",
   "code": "The login code",
   "nonce": "The login nonce"
 }
