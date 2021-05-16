@@ -9,6 +9,11 @@ functionality that can be easily hooked.
 - [Dapr](https://dapr.io)
 - A store that supports actors
 
+## Resources
+
+- [Service Swagger File](includes/Swagger/swagger.yaml)
+- [What are magic login links?](https://www.okta.com/blog/2020/09/magic-links/)
+
 ## Flow Overview
 
 ### Definitions
