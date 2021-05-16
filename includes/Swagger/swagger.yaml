@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  description: "An example auth service that allows sending a message to the user to authenticate"
+  version: 0.1.0
+  title: Magic Auth
+paths:
+  /start/{userId}/{phoneNumber}/{nonce}:
+    post:
+      summary: Start an auth session
+      description: Returns a code to send to the user
+      parameters:
+        - name: userId
+          in: path
+          description: A user identifier
+          required: true
+          schema:
+            type: string
+        - name: phoneNumber
+          in: path
+          description: A device address to send to
+          required: true
+          schema:
+            type: string
+        - name: nonce
+          in: path
+          description: A nonce
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successfully started the auth flow
+          content:
+            application/json:
+              schema:
+                type: string
+                description: The code to send to the device
+        "403":
+          description: Tried to restart an already started flow
+  /cancel/{userId}/{phoneNumber}:
+    post:
+      summary: Cancel an auth flow so it may be restarted
+      parameters:
+        - name: phoneNumber
+          in: path
+          description: The address to cancel
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: The user identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /isAuthenticated/{userId}/{phoneNumber}/{nonce}:
+    get:
+      summary: Check if a user is authenticated
+      parameters:
+        - name: userId
+          in: path
+          description: The user identifier
+          required: true
+          schema:
+            type: string
+        - name: phoneNumber
+          in: path
+          description: The device address
+          required: true
+          schema:
+            type: string
+        - name: nonce
+          in: path
+          description: The nonce to check
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Whether the user and nonce is authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IsAuthenticated'
+  /authenticate/{userId}/{code}:
+    post:
+      summary: Authenticate a user
+      parameters:
+        - name: userId
+          in: path
+          description: The user identifier
+          required: true
+          schema:
+            type: string
+        - name: code
+          in: path
+          description: The code sent to the user
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IsAuthenticated'
+components:
+  schemas:
+    IsAuthenticated:
+      type: object
+      properties:
+        isAuthenticated:
+          type: boolean

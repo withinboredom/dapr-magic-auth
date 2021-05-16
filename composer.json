@@ -11,5 +11,17 @@
     ],
     "require": {
         "dapr/php-sdk": "^1.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "MagicAuth\\": "src/",
+            "MagicAuth\\Includes\\": "includes/PHP"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
+    },
+    "scripts": {
+        "test": "phpunit tests"
     }
 }
