@@ -6,7 +6,7 @@ use DI\Container;
 use MagicAuth\Actors\AuthProcessActor;
 use MagicAuth\State\AuthState;
 use MagicAuth\State\LoginState;
-use MagicAuth\State\NoncePhonePair;
+use MagicAuth\State\NonceDevicePair;
 
 class AuthProcessActorTest extends DaprTestBase
 {
@@ -31,7 +31,7 @@ class AuthProcessActorTest extends DaprTestBase
     public function testStartAuth()
     {
         $actor = new AuthProcessActor($this->id, $this->state, $this->daprClient);
-        $actor->start(new NoncePhonePair('123', '###'));
+        $actor->start(new NonceDevicePair('123', '###'));
         $this->assertSame(['###.123'], array_keys($this->state->waitingAuth));
         $this->assertLoginState(new LoginState(123, 3, 'code', '123'), $this->state->waitingAuth['###.123']);
     }
@@ -49,18 +49,18 @@ class AuthProcessActorTest extends DaprTestBase
     public function testStartAuthFailed()
     {
         $actor = new AuthProcessActor($this->id, $this->state, $this->daprClient);
-        $actor->start(new NoncePhonePair('123', '###'));
+        $actor->start(new NonceDevicePair('123', '###'));
         $this->assertSame(['###.123'], array_keys($this->state->waitingAuth));
         $this->expectException(LogicException::class);
-        $actor->start(new NoncePhonePair('123', '###'));
+        $actor->start(new NonceDevicePair('123', '###'));
     }
 
     public function testIsAuthenticated()
     {
         $actor = new AuthProcessActor($this->id, $this->state, $this->daprClient);
-        $this->assertFalse($actor->isAuthenticated(new NoncePhonePair('123', '###')));
+        $this->assertFalse($actor->isAuthenticated(new NonceDevicePair('123', '###')));
         $this->state->waitingAuth['###.123'] = new LoginState(123, 3, 'code', '123', true);
-        $this->assertTrue($actor->isAuthenticated(new NoncePhonePair('123', '###')));
+        $this->assertTrue($actor->isAuthenticated(new NonceDevicePair('123', '###')));
     }
 
     public function getLoginStates()

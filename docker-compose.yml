@@ -10,7 +10,8 @@ services:
       context: .
       target: server
     ports:
-    - 80:80
+      - 80:80
+      - 3500:3500
   authCaddy:
     image: withinboredom/magic-auth-caddy:0.1.0
     build:

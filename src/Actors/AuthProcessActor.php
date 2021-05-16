@@ -11,7 +11,7 @@ use MagicAuth\Constants\AuthConstants;
 use MagicAuth\Includes\AuthProcessActorInterface;
 use MagicAuth\State\AuthState;
 use MagicAuth\State\LoginState;
-use MagicAuth\State\NoncePhonePair;
+use MagicAuth\State\NonceDevicePair;
 use Psr\Log\LoggerInterface;
 
 #[DaprType('AuthProcessActor')]
@@ -41,11 +41,11 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
         );
     }
 
-    public function cancelAuth(string $phoneNumber): void
+    public function cancelAuth(string $deviceId): void
     {
         $auths = $this->state->waitingAuth;
         foreach ($auths as $key => $auth) {
-            if (str_starts_with(haystack: $key, needle: $phoneNumber)) {
+            if (str_starts_with(haystack: $key, needle: $deviceId)) {
                 unset($auths[$key]);
             }
         }
@@ -61,10 +61,10 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
         }
     }
 
-    public function start(NoncePhonePair $device): string
+    public function start(NonceDevicePair $device): string
     {
         $auths = $this->state->waitingAuth ?? [];
-        $key   = $device->phoneNumber.'.'.$device->nonce;
+        $key   = $device->deviceId.'.'.$device->nonce;
 
         if ($auths[$key] ?? false) {
             throw new \LogicException('Cannot restart an authentication');
@@ -84,8 +84,10 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
             $this->daprClient->post(
                 $callback,
                 [
-                    'phoneNumber' => $device->phoneNumber,
+                    'userId'      => $this->id,
+                    'deviceId' => $device->deviceId,
                     'code'        => $current_auth->code,
+                    'nonce'       => $current_auth->nonce,
                 ]
             );
         }
@@ -93,16 +95,16 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
         return $current_auth->code;
     }
 
-    public function isAuthenticated(NoncePhonePair $device): bool
+    public function isAuthenticated(NonceDevicePair $device): bool
     {
-        return ($this->state->waitingAuth[$device->phoneNumber.'.'.$device->nonce] ?? null)?->authenticated ?? false;
+        return ($this->state->waitingAuth[$device->deviceId.'.'.$device->nonce] ?? null)?->authenticated ?? false;
     }
 
     public function authenticate(string $code): bool
     {
         $success = false;
         $auths = $this->state->waitingAuth;
-        foreach ($auths as $phoneNumber => &$auth) {
+        foreach ($auths as $deviceId => &$auth) {
             if ($auth->code === $code
                 && $auth->remainingTries > 0
                 && $auth->activationTime + AuthConstants::getExpirationTime() > time()) {
@@ -112,7 +114,7 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
                         $callbackUrl,
                         [
                             'userId'      => $this->id,
-                            'phoneNumber' => explode('.', $phoneNumber, 2)[0],
+                            'deviceId' => explode('.', $deviceId, 2)[0],
                             'code'        => $auth->code,
                             'nonce'       => $auth->nonce,
                         ]
@@ -120,7 +122,7 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
                 }
             }
         }
-        foreach ($auths as $phoneNumber => &$auth) {
+        foreach ($auths as $deviceId => &$auth) {
             $auth->remainingTries -= $success ? 0 : 1;
         }
 
@@ -129,7 +131,7 @@ class AuthProcessActor extends Actor implements AuthProcessActorInterface
                 $callbackUrl,
                 [
                     'userId'      => $this->id,
-                    'phoneNumber' => explode('.', $phoneNumber, 2)[0],
+                    'deviceId' => explode('.', $deviceId, 2)[0],
                     'code'        => $auth->code,
                     'nonce'       => $auth->nonce,
                 ]

@@ -1,0 +1,31 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: auth-service
+  labels:
+    app: auth-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "auth-service"
+        dapr.io/app-port: "80"
+    spec:
+      containers:
+        - name: fpm
+          image: withinboredom/magic-auth-service:0.1.0
+          ports:
+            - containerPort: 9000
+          imagePullPolicy: Always
+        - name: caddy
+          image: withinboredom/magic-auth-caddy:0.1.0
+          ports:
+            - containerPort: 80
+          imagePullPolicy: Always

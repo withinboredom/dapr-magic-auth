@@ -3,8 +3,13 @@ info:
   description: "An example auth service that allows sending a message to the user to authenticate"
   version: 0.1.0
   title: Magic Auth
+servers:
+  - description: Docker Compose
+    url: http://localhost/
+  - description: Dapr
+    url: https://localhost:3500/v1.0/invoke/authService/method/
 paths:
-  /start/{userId}/{phoneNumber}/{nonce}:
+  /start/{userId}/{deviceId}/{nonce}:
     post:
       summary: Start an auth session
       description: Returns a code to send to the user
@@ -15,7 +20,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: phoneNumber
+        - name: deviceId
           in: path
           description: A device address to send to
           required: true
@@ -37,11 +42,11 @@ paths:
                 description: The code to send to the device
         "403":
           description: Tried to restart an already started flow
-  /cancel/{userId}/{phoneNumber}:
+  /cancel/{userId}/{deviceId}:
     post:
       summary: Cancel an auth flow so it may be restarted
       parameters:
-        - name: phoneNumber
+        - name: deviceId
           in: path
           description: The address to cancel
           required: true
@@ -56,7 +61,7 @@ paths:
       responses:
         "200":
           description: Success
-  /isAuthenticated/{userId}/{phoneNumber}/{nonce}:
+  /isAuthenticated/{userId}/{deviceId}/{nonce}:
     get:
       summary: Check if a user is authenticated
       parameters:
@@ -66,7 +71,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: phoneNumber
+        - name: deviceId
           in: path
           description: The device address
           required: true

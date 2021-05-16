@@ -3,7 +3,7 @@
 namespace MagicAuth\Includes;
 
 use Dapr\Actors\Attributes\DaprType;
-use MagicAuth\State\NoncePhonePair;
+use MagicAuth\State\NonceDevicePair;
 
 #[DaprType('AuthProcessActor')]
 interface AuthProcessActorInterface
@@ -13,25 +13,25 @@ interface AuthProcessActorInterface
      *
      * @param string $phoneNumber The phone number to cancel
      */
-    public function cancelAuth(string $phoneNumber): void;
+    public function cancelAuth(string $deviceId): void;
 
     /**
      * Start an authentication flow
      *
-     * @param NoncePhonePair $device
+     * @param NonceDevicePair $device
      *
      * @return string The code
      */
-    public function start(NoncePhonePair $device): string;
+    public function start(NonceDevicePair $device): string;
 
     /**
      * Check whether an authenticated flow is authenticated
      *
-     * @param NoncePhonePair $device
+     * @param NonceDevicePair $device
      *
      * @return bool
      */
-    public function isAuthenticated(NoncePhonePair $device): bool;
+    public function isAuthenticated(NonceDevicePair $device): bool;
 
     /**
      * Authenticate with a code

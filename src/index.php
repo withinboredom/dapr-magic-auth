@@ -12,29 +12,29 @@ require_once __DIR__.'/../vendor/autoload.php';
 $app = App::create(
     configure: fn(ContainerBuilder $builder) => $builder
     ->addDefinitions(__DIR__.'/config.php')
-    //->enableCompilation('/tmp')
+//->enableCompilation('/tmp')
 );
 
 $app->post(
-    '/start/{userId}/{phoneNumber}/{nonce}',
-    fn(string $userId, string $phoneNumber, string $nonce, ActorProxy $proxy) => (new AuthService($proxy))->beginAuth(
+    '/start/{userId}/{deviceId}/{nonce}',
+    fn(string $userId, string $deviceId, string $nonce, ActorProxy $proxy) => (new AuthService($proxy))->beginAuth(
         $userId,
-        $phoneNumber,
+        $deviceId,
         $nonce
     )
 );
 $app->post(
-    '/cancel/{userId}/{phoneNumber}',
-    fn(string $userId, string $phoneNumber, ActorProxy $proxy) => (new AuthService($proxy))->cancelAuth(
+    '/cancel/{userId}/{deviceId}',
+    fn(string $userId, string $deviceId, ActorProxy $proxy) => (new AuthService($proxy))->cancelAuth(
         $userId,
-        $phoneNumber
+        $deviceId
     )
 );
 $app->get(
-    '/isAuthenticated/{userId}/{phoneNumber}/{nonce}',
-    fn(string $userId, string $phoneNumber, string $nonce, ActorProxy $proxy) => (new AuthService(
+    '/isAuthenticated/{userId}/{deviceId}/{nonce}',
+    fn(string $userId, string $deviceId, string $nonce, ActorProxy $proxy) => (new AuthService(
         $proxy
-    ))->isAuthenticated($userId, $phoneNumber, $nonce)
+    ))->isAuthenticated($userId, $deviceId, $nonce)
 );
 $app->post(
     '/authenticate/{userId}/{code}',
